@@ -27,41 +27,41 @@ Replace filenames as needed. After this runs successfully:
 
 The new file (*_NoPass.pdf) opens without any password prompt.
 You can delete or archive the original encrypted version.
-## Optional: Simple bash script (decrypt-sansk.sh)
-Create a file called decrypt-sansk.sh:
+## Included script: `decrypt_pdf.sh`
+
+This repo ships a small helper that takes the password and the PDF path as arguments and writes `<name>_unlocked.pdf` next to the original.
+
+Make it executable once:
 ```bash
-#!/usr/bin/env bash
-
-# Usage: ./decrypt-sansk.sh Book1.pdf
-#        or drag-and-drop the PDF onto the script
-
-if [ $# -ne 1 ]; then
-    echo "Usage: $0 input.pdf"
-    exit 1
-fi
-
-INPUT="$1"
-OUTPUT="${INPUT%.*}_NoPass.pdf"
-
-echo "Enter your SANS workbook password:"
-read -s SANSPWD
-
-qpdf --password="$SANSPWD" --decrypt "$INPUT" "$OUTPUT"
-
-if [ $? -eq 0 ]; then
-    echo "Success! Created: $OUTPUT"
-    echo "You can now open it without password prompts."
-else
-    echo "Failed. Check password or if qpdf is installed."
-fi
+chmod +x decrypt_pdf.sh
 ```
-Make it executable:
+
+Usage:
 ```bash
-chmod +x decrypt-sansk.sh
+./decrypt_pdf.sh -p <password> -f <book.pdf>
 ```
-Then run:
+
+Flags:
+- `-p <password>` — the PDF's open password. Quote it if it contains spaces or shell metacharacters (`!`, `$`, `&`, etc.).
+- `-f <book.pdf>` — bare filename or absolute/relative path to the encrypted PDF.
+- `-h`, `--help` — show built-in help.
+
+Flag order doesn't matter.
+
+Examples:
 ```bash
-./decrypt-sansk.sh SEC560_GPEN_Book1.pdf
+# Bare filename in the current directory
+./decrypt_pdf.sh -p 'my-sans-password' -f SEC560_GPEN_Book1.pdf
+# -> SEC560_GPEN_Book1_unlocked.pdf
+
+# Full path — output lands next to the input
+./decrypt_pdf.sh -f /mnt/c/Books/FOR578_Book2.pdf -p "$SANSPWD"
+# -> /mnt/c/Books/FOR578_Book2_unlocked.pdf
+```
+
+Show built-in help:
+```bash
+./decrypt_pdf.sh --help
 ```
 ## Bulk decrypt (all PDFs in current folder)
 If you have many books/sections:
